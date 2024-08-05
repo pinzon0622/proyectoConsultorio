@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: consultorio
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 1234
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+      - 3306:3306
