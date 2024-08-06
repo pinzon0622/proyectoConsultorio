@@ -21,10 +21,6 @@ def getDates():
     ddata = query.all()
     data = [date.to_json() for date in ddata]
     return jsonify(data), 200
-# def getDates():
-#     ddata = Date.query.all()
-#     data = [date.to_json() for date in ddata]
-#     return jsonify(data), 200
 
 @bp.route('/date', methods=['POST'])
 def create():

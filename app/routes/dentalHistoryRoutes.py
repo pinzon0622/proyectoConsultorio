@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.models.dentalHistory import DentalHistory
+from app.models.process import Process
 from app import db
 from datetime import datetime
 
@@ -79,3 +80,52 @@ def deleteDentalHistory(id):
     db.session.commit()
 
     return jsonify(dentalHistory.to_json()), 200
+
+@bp.route('/dentalHistory/<int:id>/addProcess', methods=['POST'])
+def add_process_to_dental_history(id):
+    dental_history = DentalHistory.query.get(id)
+    if not dental_history:
+        return jsonify({'error': 'Dental History not found'}), 404
+
+    data = request.get_json()
+    process_id = data.get('process_id')
+    if not process_id:
+        return jsonify({'error': 'Missing process_id'}), 400
+
+    process = Process.query.get(process_id)
+    if not process:
+        return jsonify({'error': 'Process not found'}), 404
+
+    dental_history.processes.append(process)
+    db.session.commit()
+
+    return jsonify(dental_history.to_json()), 200
+
+@bp.route('/dentalHistory/<int:id>/removeProcess', methods=['POST'])
+def remove_process_from_dental_history(id):
+    dental_history = DentalHistory.query.get(id)
+    if not dental_history:
+        return jsonify({'error': 'Dental History not found'}), 404
+
+    data = request.get_json()
+    process_id = data.get('process_id')
+    if not process_id:
+        return jsonify({'error': 'Missing process_id'}), 400
+
+    process = Process.query.get(process_id)
+    if not process:
+        return jsonify({'error': 'Process not found'}), 404
+
+    dental_history.processes.remove(process)
+    db.session.commit()
+
+    return jsonify(dental_history.to_json()), 200
+
+@bp.route('/dentalHistory/<int:id>/processes', methods=['GET'])
+def get_processes_of_dental_history(id):
+    dental_history = DentalHistory.query.get(id)
+    if not dental_history:
+        return jsonify({'error': 'Dental History not found'}), 404
+
+    processes = [process.to_json() for process in dental_history.processes]
+    return jsonify(processes), 200

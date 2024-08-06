@@ -9,6 +9,9 @@ class DentalHistory(db.Model):
     diagnostic = db.Column(db.String(255), nullable=False)
     observations = db.Column(db.String(255), nullable=False)
 
+    processes = db.relationship('Process', secondary='process_history', back_populates='historys')
+
+
     def to_json(self):
         return {
             'idDentalHistory': self.idDentalHistory,
@@ -16,5 +19,6 @@ class DentalHistory(db.Model):
             'idDentist': self.idDentist,
             'date': self.date.isoformat(),
             'diagnostic': self.diagnostic,
-            'observations': self.observations
+            'observations': self.observations,
+            'processes': [process.to_json() for process in self.processes]
         }

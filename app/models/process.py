@@ -7,7 +7,7 @@ class Process(db.Model):
     price = db.Column(db.Float, nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     
-    treatments = db.relationship('Treatment', secondary='process_treatment', back_populates='processes')
+    historys = db.relationship('DentalHistory', secondary='process_history', back_populates='processes')
 
     def to_json(self):
         return {
@@ -15,5 +15,4 @@ class Process(db.Model):
             'name': self.name,
             'price': self.price,
             'duration': self.duration,
-            # 'treatments': [treatment.to_json() for treatment in self.treatments]  # Comentado para evitar llamadas recursivas
         }
