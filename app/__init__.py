@@ -18,7 +18,7 @@ def create_app():
 
     db.init_app(app)
 
-    from app.routes import patientRoutes,dentistRoutes,auth,userRoutes, dateRoutes,dentalHistoryRoutes, processRoutes,processTeatmentRoutes
+    from app.routes import patientRoutes,dentistRoutes,auth,userRoutes, dateRoutes,dentalHistoryRoutes, processRoutes
     app.register_blueprint(patientRoutes.bp)
     app.register_blueprint(dentistRoutes.bp)
     app.register_blueprint(auth.bp)

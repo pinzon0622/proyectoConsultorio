@@ -8,6 +8,8 @@ class Dentist(db.Model):
     phone = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False)
 
+    histories = db.relationship('DentalHistory', back_populates='dentist')
+
     def to_json(self):
         return {
             'idDentist': self.idDentist,

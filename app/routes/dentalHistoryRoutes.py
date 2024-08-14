@@ -7,15 +7,26 @@ from datetime import datetime
 bp = Blueprint('dentalHistory', __name__)
 
 @bp.route('/dentalHistory', methods=['GET'])
+# def getDentalHistories():
+#     dhdata = DentalHistory.query.all()
+#     data = [dentalHistory.to_json() for dentalHistory in dhdata]
+#     return jsonify(data), 200
 def getDentalHistories():
-    dhdata = DentalHistory.query.all()
+    patient_id = request.args.get('patient_id')
+
+    query = DentalHistory.query
+
+    if patient_id:
+        query = query.filter(DentalHistory.idPatient == patient_id)
+
+    dhdata = query.all()
     data = [dentalHistory.to_json() for dentalHistory in dhdata]
     return jsonify(data), 200
 
 @bp.route('/dentalHistory', methods=['POST'])
 def create():
     data = request.get_json()
-    if not data or not all(key in data for key in ('idPatient', 'idDentist', 'date', 'diagnostic', 'observations')):
+    if not data or not all(key in data for key in ('idPatient', 'idDentist', 'date', 'diagnostic', 'observations', 'idProcess')):
         return jsonify({'error': 'Missing data'}), 400
 
     try:
@@ -26,11 +37,13 @@ def create():
     new_dentalHistory = DentalHistory(
         idPatient=data['idPatient'],
         idDentist=data['idDentist'],
+        idProcess=data['idProcess'],
         date=date,
         diagnostic=data['diagnostic'],
         observations=data['observations']
     )
 
+            
     db.session.add(new_dentalHistory)
     db.session.commit()
 
@@ -52,7 +65,7 @@ def updateDentalHistory(id):
         return jsonify({'error': 'Dental History not found'}), 404
 
     data = request.get_json()
-    if not data or not all(key in data for key in ('idPatient', 'idDentist', 'date', 'diagnostic', 'observations')):
+    if not data or not all(key in data for key in ('idPatient', 'idDentist', 'idProcess' , 'date', 'diagnostic', 'observations')):
         return jsonify({'error': 'Missing data'}), 400
 
     try:
@@ -62,6 +75,7 @@ def updateDentalHistory(id):
 
     dentalHistory.idPatient = data['idPatient']
     dentalHistory.idDentist = data['idDentist']
+    dentalHistory.idProcess = data['idProcess']
     dentalHistory.date = date
     dentalHistory.diagnostic = data['diagnostic']
     dentalHistory.observations = data['observations']
@@ -80,52 +94,3 @@ def deleteDentalHistory(id):
     db.session.commit()
 
     return jsonify(dentalHistory.to_json()), 200
-
-@bp.route('/dentalHistory/<int:id>/addProcess', methods=['POST'])
-def add_process_to_dental_history(id):
-    dental_history = DentalHistory.query.get(id)
-    if not dental_history:
-        return jsonify({'error': 'Dental History not found'}), 404
-
-    data = request.get_json()
-    process_id = data.get('process_id')
-    if not process_id:
-        return jsonify({'error': 'Missing process_id'}), 400
-
-    process = Process.query.get(process_id)
-    if not process:
-        return jsonify({'error': 'Process not found'}), 404
-
-    dental_history.processes.append(process)
-    db.session.commit()
-
-    return jsonify(dental_history.to_json()), 200
-
-@bp.route('/dentalHistory/<int:id>/removeProcess', methods=['POST'])
-def remove_process_from_dental_history(id):
-    dental_history = DentalHistory.query.get(id)
-    if not dental_history:
-        return jsonify({'error': 'Dental History not found'}), 404
-
-    data = request.get_json()
-    process_id = data.get('process_id')
-    if not process_id:
-        return jsonify({'error': 'Missing process_id'}), 400
-
-    process = Process.query.get(process_id)
-    if not process:
-        return jsonify({'error': 'Process not found'}), 404
-
-    dental_history.processes.remove(process)
-    db.session.commit()
-
-    return jsonify(dental_history.to_json()), 200
-
-@bp.route('/dentalHistory/<int:id>/processes', methods=['GET'])
-def get_processes_of_dental_history(id):
-    dental_history = DentalHistory.query.get(id)
-    if not dental_history:
-        return jsonify({'error': 'Dental History not found'}), 404
-
-    processes = [process.to_json() for process in dental_history.processes]
-    return jsonify(processes), 200

@@ -7,7 +7,7 @@ class Process(db.Model):
     price = db.Column(db.Float, nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     
-    historys = db.relationship('DentalHistory', secondary='process_history', back_populates='processes')
+    dentalHistories = db.relationship('DentalHistory', back_populates='process')
 
     def to_json(self):
         return {
